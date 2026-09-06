@@ -197,13 +197,6 @@ export async function renderDetails(bookId) {
   const favorites = JSON.parse(localStorage.getItem("aura_favorites") || "[]");
   const isFavorited = favorites.includes(book.id);
 
-  // Disable automatic network check for now as requested so "Upload E-Book" button is always available
-  const hasEpub = Boolean(
-    localStorage.getItem(`aura_has_epub_${book.id}`) === "true" ||
-    window[`aura_epub_buf_${book.id}`]
-  );
-  book.hasEpub = hasEpub;
-
   // Build the details panel
   let html = `
     <!-- Top Bar: Back Button Left, Minimalist Icon Buttons Right -->
@@ -247,14 +240,6 @@ export async function renderDetails(bookId) {
           </button>
 
           <div class="details-secondary-actions">
-            ${hasEpub ? `
-              <!-- Read & Listen EPUB Reader Button -->
-              <button class="btn-secondary" id="details-read-epub-btn" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; border-color: rgba(139, 92, 246, 0.4);" title="Read and listen to synchronized EPUB text">
-                <i data-lucide="book-open"></i>
-                <span>Read & Listen</span>
-              </button>
-            ` : ""}
-
             <!-- Reset Progress (only show if has progress) -->
             <button class="btn-secondary" id="details-reset-btn" ${!hasProgress ? "disabled style='opacity:0.5; cursor:default;'" : ""}>
               <i data-lucide="rotate-ccw"></i>
@@ -446,35 +431,6 @@ function setupDetailsEvents(book, container) {
         descToggleBtn.innerHTML = `<span>Read Less</span><i data-lucide="chevron-up"></i>`;
       }
       if (window.lucide) window.lucide.createIcons();
-    });
-  }
-
-  // Read & Listen EPUB Reader Button
-  const readEpubBtn = document.getElementById("details-read-epub-btn");
-  if (readEpubBtn) {
-    readEpubBtn.addEventListener("click", () => {
-      try {
-        const isLoadedInPlayer = player.currentBook && String(player.currentBook.id) === String(book.id);
-        let targetChapterIdx = 0;
-
-        if (isLoadedInPlayer) {
-          targetChapterIdx = player.currentChapterIndex || 0;
-        } else if (book.progressSeconds > 0 && book.chapters && book.chapters.length > 0) {
-          let accum = 0;
-          for (let i = 0; i < book.chapters.length; i++) {
-            const chDur = player.getChapterDuration ? player.getChapterDuration(book.chapters[i], i, book.chapters) : 0;
-            if (accum + chDur >= book.progressSeconds) {
-              targetChapterIdx = i;
-              break;
-            }
-            accum += chDur;
-          }
-        }
-
-        openEpubReader(book, targetChapterIdx, false);
-      } catch (err) {
-        console.error("Failed to open EPUB reader from details view:", err);
-      }
     });
   }
 
@@ -716,7 +672,7 @@ export function openEditModal(book, onSaved) {
         <!-- Audnex ASIN Auto-Fetch Section -->
         <div class="edit-asin-fetch-box" style="background: var(--bg-surface, #212121); border: 1px solid var(--border-color, #292929); padding: 14px; border-radius: var(--radius-md, 6px); margin-bottom: 12px;">
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--accent-primary, #f27d11); margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
-            <i data-lucide="sparkles"></i> Auto-Fetch Metadata via Audible ASIN (Audnex API)
+            Auto-Fetch Metadata via Audible ASIN (Audnex API)
           </label>
           <div style="display: flex; gap: 8px;">
             <input type="text" id="edit-asin-input" value="${book.asin || ''}" placeholder="e.g. B00513E65Q or B0071LS8MS" style="flex: 1; font-family: monospace; background: var(--bg-primary, #121212); color: var(--text-main, #edeae6); border: 1px solid var(--border-color, #292929); border-radius: var(--radius-sm, 4px); padding: 8px 12px; font-size: 0.85rem;" />

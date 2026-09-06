@@ -1,7 +1,6 @@
 // Audiobook Playback Engine (HTML5 Media Player)
 import { AUDIOBOOKS } from "./data.js";
 import { getApiBase, fetchWithTimeout } from "./config.js";
-import { openEpubReader } from "./epub_reader.js";
 
 class PlayerController {
   constructor() {
@@ -160,24 +159,6 @@ class PlayerController {
     this.nextChapterBtn.addEventListener("click", () => this.nextChapter());
     this.rewindBtn.addEventListener("click", () => this.skip(-15));
     this.forwardBtn.addEventListener("click", () => this.skip(30));
-
-    // Read eBook EPUB Reader button
-    const readEpubBtn = document.getElementById("p-read-epub-btn");
-    if (readEpubBtn) {
-      readEpubBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-          if (this.currentBook) {
-            openEpubReader(this.currentBook, this.currentChapterIndex || 0);
-          } else {
-            console.warn("Read EPUB clicked but no current book loaded in player");
-          }
-        } catch (err) {
-          console.error("Failed to open EPUB reader from player bar:", err);
-        }
-      });
-    }
 
     // Timeline Scrubbing
     this.timelineSlider.addEventListener("input", (e) => {
