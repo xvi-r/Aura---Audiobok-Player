@@ -61,4 +61,7 @@ public class Audiobook {
 
     @OneToMany(mappedBy = "audiobook",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapters = new ArrayList<>();
+
+    @OneToMany(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserAudiobook> userAudiobooks = new ArrayList<>();
 }
