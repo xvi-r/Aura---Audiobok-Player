@@ -714,41 +714,42 @@ export function openEditModal(book, onSaved) {
       
       <form id="edit-metadata-form" class="edit-modal-body">
         <!-- Audnex ASIN Auto-Fetch Section -->
-        <div class="edit-asin-fetch-box" style="background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.25); padding: 14px; border-radius: 12px; margin-bottom: 16px;">
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--accent-primary, #a78bfa); margin-bottom: 8px; font-size: 0.9rem;">
+        <div class="edit-asin-fetch-box" style="background: var(--bg-surface, #212121); border: 1px solid var(--border-color, #292929); padding: 14px; border-radius: var(--radius-md, 6px); margin-bottom: 12px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--accent-primary, #f27d11); margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
             <i data-lucide="sparkles"></i> Auto-Fetch Metadata via Audible ASIN (Audnex API)
           </label>
           <div style="display: flex; gap: 8px;">
-            <input type="text" id="edit-asin-input" value="${book.asin || ''}" placeholder="e.g. B00513E65Q or B0071LS8MS" style="flex: 1; font-family: monospace;" />
-            <select id="edit-asin-region" style="background: rgba(255,255,255,0.08); color: var(--text-main, #fff); border: 1px solid var(--border-color, rgba(255,255,255,0.2)); border-radius: var(--radius-sm, 8px); padding: 0 10px; font-weight: 500; cursor: pointer;">
-              <option value="uk" selected style="background: #1e1e24; color: #fff;">UK (United Kingdom)</option>
-              <option value="us" style="background: #1e1e24; color: #fff;">US (United States)</option>
-              <option value="ca" style="background: #1e1e24; color: #fff;">CA (Canada)</option>
-              <option value="de" style="background: #1e1e24; color: #fff;">DE (Germany)</option>
-              <option value="fr" style="background: #1e1e24; color: #fff;">FR (France)</option>
-              <option value="au" style="background: #1e1e24; color: #fff;">AU (Australia)</option>
-            </select>            <button type="button" class="btn-secondary" id="edit-asin-fetch-btn" style="white-space: nowrap; display: flex; align-items: center; gap: 6px; background: var(--accent-primary, #a78bfa); color: #000; font-weight: 600; border: none; padding: 0 16px;">
+            <input type="text" id="edit-asin-input" value="${book.asin || ''}" placeholder="e.g. B00513E65Q or B0071LS8MS" style="flex: 1; font-family: monospace; background: var(--bg-primary, #121212); color: var(--text-main, #edeae6); border: 1px solid var(--border-color, #292929); border-radius: var(--radius-sm, 4px); padding: 8px 12px; font-size: 0.85rem;" />
+            <select id="edit-asin-region" style="background: var(--bg-primary, #121212); color: var(--text-main, #edeae6); border: 1px solid var(--border-color, #292929); border-radius: var(--radius-sm, 4px); padding: 0 10px; font-weight: 500; cursor: pointer; font-size: 0.85rem;">
+              <option value="uk" selected style="background: var(--bg-surface, #212121); color: var(--text-main, #edeae6);">UK (United Kingdom)</option>
+              <option value="us" style="background: var(--bg-surface, #212121); color: var(--text-main, #edeae6);">US (United States)</option>
+              <option value="ca" style="background: var(--bg-surface, #212121); color: var(--text-main, #edeae6);">CA (Canada)</option>
+              <option value="de" style="background: var(--bg-surface, #212121); color: var(--text-main, #edeae6);">DE (Germany)</option>
+              <option value="fr" style="background: var(--bg-surface, #212121); color: var(--text-main, #edeae6);">FR (France)</option>
+              <option value="au" style="background: var(--bg-surface, #212121); color: var(--text-main, #edeae6);">AU (Australia)</option>
+            </select>
+            <button type="button" class="btn-primary-play" id="edit-asin-fetch-btn" style="white-space: nowrap; padding: 0 14px; font-size: 0.8rem;">
               <i data-lucide="search"></i>
-              <span>Fetch Metadata</span>
+              <span>Fetch</span>
             </button>
           </div>
           <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <input type="checkbox" id="edit-use-asin-chapters" checked style="width: 16px; height: 16px; accent-color: var(--accent-primary, #a78bfa); cursor: pointer;" />
-              <label for="edit-use-asin-chapters" style="font-size: 0.85rem; font-weight: 500; color: var(--text-main, #fff); cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                <i data-lucide="list-music" style="width: 14px; height: 14px; color: var(--accent-primary, #a78bfa);"></i>
+              <input type="checkbox" id="edit-use-asin-chapters" checked style="width: 15px; height: 15px; accent-color: var(--accent-primary, #f27d11); cursor: pointer;" />
+              <label for="edit-use-asin-chapters" style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary, #b8b5b0); cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="list-music" style="width: 14px; height: 14px; color: var(--accent-primary, #f27d11);"></i>
                 Use Audnex ASIN Chapters (Fetch official chapter list & timestamps)
               </label>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <input type="checkbox" id="edit-replace-description" checked style="width: 16px; height: 16px; accent-color: var(--accent-primary, #a78bfa); cursor: pointer;" />
-              <label for="edit-replace-description" style="font-size: 0.85rem; font-weight: 500; color: var(--text-main, #fff); cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                <i data-lucide="file-text" style="width: 14px; height: 14px; color: var(--accent-primary, #a78bfa);"></i>
+              <input type="checkbox" id="edit-replace-description" checked style="width: 15px; height: 15px; accent-color: var(--accent-primary, #f27d11); cursor: pointer;" />
+              <label for="edit-replace-description" style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary, #b8b5b0); cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="file-text" style="width: 14px; height: 14px; color: var(--accent-primary, #f27d11);"></i>
                 Replace Description with Audnex Summary / Full Synopsis
               </label>
             </div>
           </div>
-          <div id="edit-asin-status" style="margin-top: 8px; font-size: 0.825rem; min-height: 18px;"></div>
+          <div id="edit-asin-status" style="margin-top: 8px; font-size: 0.8rem; min-height: 18px;"></div>
         </div>
 
         <div class="edit-field">
@@ -774,17 +775,17 @@ export function openEditModal(book, onSaved) {
 
         <div class="edit-field">
           <label>Description / Synopsis</label>
-          <textarea id="edit-desc-input" rows="5">${book.description || ''}</textarea>
+          <textarea id="edit-desc-input" rows="4">${book.description || ''}</textarea>
         </div>
 
-        <div class="edit-modal-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-          <button type="button" class="btn-secondary" id="edit-reset-cover-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); display: flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.85rem;" title="Reset cover image back to original backend cover.jpg">
+        <div class="edit-modal-footer">
+          <button type="button" class="btn-secondary" id="edit-reset-cover-btn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); font-size: 0.8rem;" title="Reset cover image back to original backend cover.jpg">
             <i data-lucide="rotate-ccw"></i>
-            <span>Reset Cover (cover.jpg)</span>
+            <span>Reset Cover</span>
           </button>
-          <div style="display: flex; gap: 10px;">
+          <div style="display: flex; gap: 8px;">
             <button type="button" class="btn-secondary" id="edit-modal-cancel">Cancel</button>
-            <button type="submit" class="btn-primary-play" style="width: auto; padding: 8px 20px;">
+            <button type="submit" class="btn-primary-play" style="width: auto; padding: 6px 16px;">
               <i data-lucide="check"></i>
               <span>Save Changes</span>
             </button>
@@ -857,7 +858,7 @@ export function openEditModal(book, onSaved) {
         return;
       }
 
-      statusDiv.innerHTML = `<span style="color: var(--accent-primary, #a78bfa); display: flex; align-items: center; gap: 6px;"><i data-lucide="loader-2" class="spin"></i> Enriching backend database for ASIN ${rawAsin}...</span>`;
+      statusDiv.innerHTML = `<span style="color: var(--accent-primary, #f27d11); display: flex; align-items: center; gap: 6px;"><i data-lucide="loader-2" class="spin"></i> Enriching backend database for ASIN ${rawAsin}...</span>`;
       if (window.lucide) window.lucide.createIcons();
       fetchBtn.disabled = true;
 

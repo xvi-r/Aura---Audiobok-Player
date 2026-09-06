@@ -721,7 +721,7 @@
 }
 
 /* ==========================================================================
-   Edit Metadata Modal Overlay & Card Styling
+   Edit Metadata Modal Overlay & Card Styling - Aligned with Aura Design System
    ========================================================================== */
 .edit-modal-overlay {
   position: fixed;
@@ -731,9 +731,9 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(8, 8, 14, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -743,21 +743,21 @@
 }
 
 .edit-modal-card {
-  background: #14141d;
-  border: 1px solid rgba(167, 139, 250, 0.35);
-  border-radius: 16px;
+  background: var(--bg-secondary, #1a1a1a);
+  border: 1px solid var(--border-color, #292929);
+  border-radius: var(--radius-lg, 8px);
   width: 100%;
   max-width: 620px;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(167, 139, 250, 0.15);
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.7));
   overflow: hidden;
-  animation: editModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: editModalPop 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 @keyframes editModalPop {
-  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  from { opacity: 0; transform: scale(0.97) translateY(8px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
@@ -765,43 +765,50 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color, #292929);
+  background: var(--bg-surface, #212121);
 }
 
 .edit-modal-header h3 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main, #edeae6);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.edit-modal-header h3 i,
+.edit-modal-header h3 svg {
+  color: var(--accent-primary, #f27d11);
+  width: 16px;
+  height: 16px;
 }
 
 .edit-modal-close {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #aaa;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border-color, #292929);
+  color: var(--text-muted, #7a7875);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm, 4px);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-quick, all 0.1s ease);
 }
 
 .edit-modal-close:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .edit-modal-body {
-  padding: 20px 24px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -816,30 +823,32 @@
 }
 
 .edit-field label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary, #b8b5b0);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .edit-field input,
-.edit-field textarea {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  padding: 10px 14px;
-  color: #fff;
-  font-size: 0.95rem;
-  font-family: inherit;
+.edit-field textarea,
+.edit-field select {
+  background: var(--bg-primary, #121212);
+  border: 1px solid var(--border-color, #292929);
+  border-radius: var(--radius-sm, 4px);
+  padding: 8px 12px;
+  color: var(--text-main, #edeae6);
+  font-size: 0.85rem;
+  font-family: var(--font-family);
   outline: none;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: var(--transition-quick);
 }
 
 .edit-field input:focus,
-.edit-field textarea:focus {
-  border-color: var(--accent-primary, #a78bfa);
-  background: rgba(167, 139, 250, 0.08);
+.edit-field textarea:focus,
+.edit-field select:focus {
+  border-color: var(--border-focus, #f27d11);
+  background: var(--bg-surface, #212121);
 }
 
 .edit-field-row {
@@ -849,12 +858,12 @@
 }
 
 .edit-modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.25);
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color, #292929);
+  background: var(--bg-surface, #212121);
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
