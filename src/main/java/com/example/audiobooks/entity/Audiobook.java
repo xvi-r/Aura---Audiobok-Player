@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,7 @@ public class Audiobook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;    
+    private Long id;
 
     private String asin;
 
@@ -52,16 +53,22 @@ public class Audiobook {
     @JoinColumn(name = "series_id")
     private Series series;
 
-    //creates a separate table
+    // creates a separate table
     @ElementCollection
     private List<String> genres = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "audiobook",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapters = new ArrayList<>();
 
     @OneToMany(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserAudiobook> userAudiobooks = new ArrayList<>();
+
+
+    //Still temporary since AudiobookProgress isn't technically needed anymore 
+    //TODO Remove audiobookProgress entity completely it us unused
+    @OneToOne(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AudiobookProgress progress;
 }
