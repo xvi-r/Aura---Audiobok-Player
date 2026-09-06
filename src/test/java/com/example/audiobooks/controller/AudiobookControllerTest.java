@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+
 
 import java.time.Instant;
 import java.util.List;
@@ -94,5 +96,19 @@ public class AudiobookControllerTest {
                 .andExpect(status().isOk());
 
         verify(audiobookService).enrichAudiobookByAsin(1L, "B002V5B280", "us", true);
+    }
+
+    @Test
+    @DisplayName("DELETE /api/audiobooks/{id} - Should return 204 No Content and invoke service.deleteAudiobook")
+    void deleteAudiobook_shouldReturn204NoContent() throws Exception {
+        User mockUserEntity = new User();
+        mockUserEntity.setId(1L);
+        mockUserEntity.setUsername("alice");
+        CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
+        mockMvc.perform(delete("/api/audiobooks/1")
+                .with(user(customUserDetails))
+                .with(csrf())) // Requires CSRF token for DELETE
+                .andExpect(status().isNoContent()); // Asserts HTTP 204
+        verify(audiobookService).deleteAudiobook(1L);
     }
 }
