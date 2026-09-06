@@ -3,6 +3,8 @@ package com.example.audiobooks.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -64,11 +66,13 @@ public class Audiobook {
     private List<Chapter> chapters = new ArrayList<>();
 
     @OneToMany(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<UserAudiobook> userAudiobooks = new ArrayList<>();
 
 
     //Still temporary since AudiobookProgress isn't technically needed anymore 
     //TODO Remove audiobookProgress entity completely it us unused
     @OneToOne(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private AudiobookProgress progress;
 }
