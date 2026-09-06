@@ -274,8 +274,10 @@ export async function renderDetails(bookId) {
         <!-- Meta Grid Info -->
         <div class="details-meta-row">
           ${(book.asin && book.rating) ? `
-            <div class="details-meta-pill" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.12); color: #f59e0b; font-weight: 600;">
-              <i data-lucide="star" style="fill: #f59e0b; width: 14px; height: 14px;"></i>
+            <div class="details-meta-pill" style="border-color: rgba(242, 125, 17, 0.35); background: rgba(242, 125, 17, 0.12); color: var(--accent-primary); font-weight: 600;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: var(--accent-primary);">
+                <path d="M12 2.5l2.75 6.6 7.15.55-5.4 4.7 1.65 7.05L12 17.65l-6.15 3.75 1.65-7.05-5.4-4.7 7.15-.55L12 2.5z"/>
+              </svg>
               <span>${book.rating} Rating</span>
             </div>
           ` : ""}
