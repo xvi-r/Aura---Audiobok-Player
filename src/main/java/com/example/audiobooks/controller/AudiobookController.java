@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -114,5 +115,11 @@ public class AudiobookController {
     @GetMapping("/api/audiobooks/continue-listening")
     public List<UserAudiobookResponse> continueListening(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return userAudiobookService.continueListening(userDetails.getId());
+    }
+
+    @DeleteMapping("/api/audiobooks/{id}")
+    public ResponseEntity<Void> deleteAudiobook(@PathVariable Long id) {
+        service.deleteAudiobook(id);
+        return ResponseEntity.noContent().build();
     }
 }

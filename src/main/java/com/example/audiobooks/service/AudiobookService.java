@@ -16,6 +16,7 @@ import com.example.audiobooks.repository.SeriesRepository;
 import com.example.audiobooks.repository.UserAudiobookRepository;
 import com.example.audiobooks.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.core.io.Resource;
@@ -60,6 +61,7 @@ public class AudiobookService {
     private final M4Bparser parser;
     private final MP3Parser mp3Parser;
     private final RestClient restClient;
+    private final FileStorageService fileStorageService;
 
     // TODO Check if this will be needed at all, if not remove it
     // public List<AudiobookResponse> getAllAudiobooks() {
@@ -385,4 +387,16 @@ public class AudiobookService {
         }
     }
 
+    @Transactional
+    public void deleteAudiobook(Long id) {
+        Audiobook audiobook = repository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Audiobook not found with id: " + id
+                        )
+                );
+        repository.delete(audiobook);
+        fileStorageService.delete("app-data/audiobooks/" + audiobook.getId());
+        
+    }
 }
