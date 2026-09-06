@@ -223,6 +223,11 @@ export async function renderDetails(bookId) {
         <button class="top-icon-btn" id="details-edit-btn" title="Edit Metadata & Audnex ASIN" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-muted); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;">
           <i data-lucide="pencil" style="width: 18px; height: 18px;"></i>
         </button>
+
+        <!-- Delete Audiobook Trash Icon Button -->
+        <button class="top-icon-btn" id="details-delete-btn" title="Delete Audiobook" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;">
+          <i data-lucide="trash-2" style="width: 18px; height: 18px; color: #ef4444;"></i>
+        </button>
       </div>
     </div>
 
@@ -495,6 +500,39 @@ function setupDetailsEvents(book, container) {
         player.loadBook(book, 0, 0);
       }
       renderDetails(book.id);
+    });
+  }
+
+  // Delete Audiobook Button Listener
+  const deleteBtn = document.getElementById("details-delete-btn");
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", async () => {
+      const confirmDelete = confirm(`Are you sure you want to permanently delete "${book.title}"?\n\nThis will remove the audiobook entity and all stored media files from the server.`);
+      if (!confirmDelete) return;
+
+      try {
+        deleteBtn.disabled = true;
+        const API_BASE = getApiBase();
+        const response = await fetchWithTimeout(`${API_BASE}/api/audiobooks/${book.id}`, {
+          method: "DELETE"
+        }, 10000);
+
+        if (response.ok || response.status === 204) {
+          // If currently loaded in player, stop playback
+          if (player.currentBook && String(player.currentBook.id) === String(book.id)) {
+            player.pause();
+            player.currentBook = null;
+          }
+          router.navigate("#library");
+        } else {
+          alert(`Failed to delete audiobook. Server returned HTTP ${response.status}`);
+        }
+      } catch (err) {
+        console.error("[Aura Delete] Error deleting audiobook:", err);
+        alert(`Error deleting audiobook: ${err.message || "Network error"}`);
+      } finally {
+        deleteBtn.disabled = false;
+      }
     });
   }
 
