@@ -5,7 +5,6 @@ import com.example.audiobooks.dto.audnex.AudnexBookResponse;
 import com.example.audiobooks.dto.audnexChapters.AudnexChapterDto;
 import com.example.audiobooks.dto.audnexChapters.AudnexChaptersResponseDto;
 import com.example.audiobooks.entity.Audiobook;
-import com.example.audiobooks.entity.AudiobookProgress;
 import com.example.audiobooks.entity.Chapter;
 import com.example.audiobooks.entity.Series;
 import com.example.audiobooks.entity.UserAudiobook;

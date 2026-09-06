@@ -15,7 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,11 +67,4 @@ public class Audiobook {
     @OneToMany(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<UserAudiobook> userAudiobooks = new ArrayList<>();
-
-
-    //Still temporary since AudiobookProgress isn't technically needed anymore 
-    //TODO Remove audiobookProgress entity completely it us unused
-    @OneToOne(mappedBy = "audiobook", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private AudiobookProgress progress;
 }
