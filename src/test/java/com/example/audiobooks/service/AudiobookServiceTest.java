@@ -1,6 +1,8 @@
 package com.example.audiobooks.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -26,6 +28,8 @@ import com.example.audiobooks.repository.SeriesRepository;
 import com.example.audiobooks.repository.UserAudiobookRepository;
 import com.example.audiobooks.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @RestClientTest(AudiobookService.class)
 public class AudiobookServiceTest {
 
@@ -46,6 +50,9 @@ public class AudiobookServiceTest {
 
     @MockitoBean
     private AudiobookRepository repository;
+
+    @MockitoBean
+    private FileStorageService fileStorageService;
 
     @MockitoBean
     private UserAudiobookRepository userAudiobookRepository;
@@ -139,5 +146,32 @@ public class AudiobookServiceTest {
         assertThat(mockAudiobook.getTitle()).isEqualTo("Project Hail Mary");
         assertThat(mockAudiobook.getAuthor()).isEqualTo("Andy Weir");
         assertThat(mockAudiobook.getSeries()).isNull();
+    }
+
+    @Test
+    @DisplayName("deleteAudiobook - Should delete entity and call fileStorageService when audiobook exists")
+    void deleteAudiobook_shouldDeleteEntityAndFiles_whenAudiobookExists() {
+        // 1. Arrange
+        Audiobook mockAudiobook = new Audiobook();
+        mockAudiobook.setId(1L);
+        when(repository.findById(1L)).thenReturn(Optional.of(mockAudiobook));
+        // 2. Act
+        audiobookService.deleteAudiobook(1L);
+        // 3. Assert - Verifies repository.delete and fileStorageService.delete were called
+        verify(repository).delete(mockAudiobook);
+        verify(fileStorageService).delete("app-data/audiobooks/1");
+    }
+
+    
+    @Test
+    @DisplayName("deleteAudiobook - Should throw EntityNotFoundException when audiobook does not exist")
+    void deleteAudiobook_shouldThrowEntityNotFoundException_whenAudiobookDoesNotExist() {
+        // 1. Arrange
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+        // 2. Act & Assert
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                audiobookService.deleteAudiobook(99L)
+        );
+        assertThat(exception.getMessage()).isEqualTo("Audiobook not found with id: 99");
     }
 }
