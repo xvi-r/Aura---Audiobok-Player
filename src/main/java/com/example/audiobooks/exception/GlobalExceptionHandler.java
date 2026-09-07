@@ -11,38 +11,46 @@ import jakarta.persistence.EntityNotFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNameAlreadyExistsException.class)
-    public ResponseEntity<String> handleUsernameAlreadyExists(
-            UserNameAlreadyExistsException ex) {
+        @ExceptionHandler(UserNameAlreadyExistsException.class)
+        public ResponseEntity<String> handleUsernameAlreadyExists(
+                        UserNameAlreadyExistsException ex) {
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ex.getMessage());
-    }
+                return ResponseEntity
+                                .status(HttpStatus.CONFLICT)
+                                .body(ex.getMessage());
+        }
 
-    @ExceptionHandler(NoPlayedAudiobookException.class)
-    public ResponseEntity<String> handleNoPlayedAudiobook(
-            NoPlayedAudiobookException ex) {
+        @ExceptionHandler(NoPlayedAudiobookException.class)
+        public ResponseEntity<String> handleNoPlayedAudiobook(
+                        NoPlayedAudiobookException ex) {
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
-    }
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(ex.getMessage());
+        }
 
-    @ExceptionHandler(HttpClientErrorException.NotFound.class)
-    public ResponseEntity<String> handleAsinNotFound(
-            HttpClientErrorException.NotFound e) {
+        @ExceptionHandler(HttpClientErrorException.NotFound.class)
+        public ResponseEntity<String> handleAsinNotFound(
+                        HttpClientErrorException.NotFound e) {
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body("ASIN does not exist");
-    }
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body("ASIN does not exist");
+        }
 
-    
         @ExceptionHandler(EntityNotFoundException.class)
         public ResponseEntity<String> handleEntityNotFound(EntityNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(ex.getMessage());
+        }
+
+        @ExceptionHandler(AudiobookNotFoundException.class)
+        public ResponseEntity<String> handleAudiobookNotFound(
+                        AudiobookNotFoundException ex) {
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(ex.getMessage());
         }
 }
