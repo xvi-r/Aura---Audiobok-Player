@@ -8,6 +8,7 @@ import com.example.audiobooks.entity.Audiobook;
 import com.example.audiobooks.entity.Chapter;
 import com.example.audiobooks.entity.Series;
 import com.example.audiobooks.entity.UserAudiobook;
+import com.example.audiobooks.exception.AudiobookNotFoundException;
 import com.example.audiobooks.parser.M4Bparser;
 import com.example.audiobooks.parser.MP3Parser;
 import com.example.audiobooks.repository.AudiobookRepository;
@@ -76,7 +77,7 @@ public class AudiobookService {
 
     public Audiobook getAudiobookById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Audiobook not found"));
+                .orElseThrow(() -> new AudiobookNotFoundException(id));
     }
 
     public Audiobook saveAudiobook(Audiobook audiobook) {
