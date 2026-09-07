@@ -22,13 +22,19 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.context.annotation.Import;
+import org.springframework.security.web.context.SecurityContextRepository;
+
+import com.example.audiobooks.config.SecurityConfig;
 import com.example.audiobooks.dto.userAudiobook.UserAudiobookResponse;
 import com.example.audiobooks.entity.User;
+import com.example.audiobooks.entity.UserRole;
 import com.example.audiobooks.security.CustomUserDetails;
 import com.example.audiobooks.service.AudiobookService;
 import com.example.audiobooks.service.UserAudiobookService;
 
 @WebMvcTest(AudiobookController.class)
+@Import(SecurityConfig.class)
 public class AudiobookControllerTest {
 
     @Autowired
@@ -40,12 +46,16 @@ public class AudiobookControllerTest {
     @MockitoBean
     private AudiobookService audiobookService;
 
+    @MockitoBean
+    private SecurityContextRepository securityContextRepository;
+
     @Test
     @DisplayName("GET /api/audiobooks/continue-listening - Should return 200 OK and JSON list when authenticated")
     void continueListening_shouldReturn200AndJsonList() throws Exception {
         User mockUserEntity = new User();
         mockUserEntity.setId(1L);
         mockUserEntity.setUsername("alice");
+        mockUserEntity.setRole(UserRole.USER);
         CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
 
         UserAudiobookResponse sampleBook = new UserAudiobookResponse(
@@ -78,6 +88,7 @@ public class AudiobookControllerTest {
         User mockUserEntity = new User();
         mockUserEntity.setId(1L);
         mockUserEntity.setUsername("alice");
+        mockUserEntity.setRole(UserRole.USER);
         CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
 
         String jsonPayload = """
@@ -99,15 +110,32 @@ public class AudiobookControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/audiobooks/{id} - Should return 204 No Content and invoke service.deleteAudiobook")
-    void deleteAudiobook_shouldReturn204NoContent() throws Exception {
+    @DisplayName("DELETE /api/audiobooks/{id} - Should return 403 Forbidden when user role is USER")
+    void deleteAudiobook_whenUserHasRoleUser_shouldReturn403Forbidden() throws Exception {
         User mockUserEntity = new User();
         mockUserEntity.setId(1L);
         mockUserEntity.setUsername("alice");
+        mockUserEntity.setRole(UserRole.USER);
         CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
+
         mockMvc.perform(delete("/api/audiobooks/1")
                 .with(user(customUserDetails))
-                .with(csrf())) // Requires CSRF token for DELETE
+                .with(csrf()))
+                .andExpect(status().isForbidden()); // Asserts HTTP 403
+    }
+
+    @Test
+    @DisplayName("DELETE /api/audiobooks/{id} - Should return 204 No Content when user role is ADMIN")
+    void deleteAudiobook_whenUserHasRoleAdmin_shouldReturn204NoContent() throws Exception {
+        User mockUserEntity = new User();
+        mockUserEntity.setId(2L);
+        mockUserEntity.setUsername("admin");
+        mockUserEntity.setRole(UserRole.ADMIN);
+        CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
+
+        mockMvc.perform(delete("/api/audiobooks/1")
+                .with(user(customUserDetails))
+                .with(csrf()))
                 .andExpect(status().isNoContent()); // Asserts HTTP 204
         verify(audiobookService).deleteAudiobook(1L);
     }
