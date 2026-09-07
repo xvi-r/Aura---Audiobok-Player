@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -117,6 +118,7 @@ public class AudiobookController {
         return userAudiobookService.continueListening(userDetails.getId());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/api/audiobooks/{id}")
     public ResponseEntity<Void> deleteAudiobook(@PathVariable Long id) {
         service.deleteAudiobook(id);
