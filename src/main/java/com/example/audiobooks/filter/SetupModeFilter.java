@@ -27,12 +27,21 @@ public class SetupModeFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         if (applicationState.isSetupRequired()
-                && !request.getRequestURI().equals("/setup")) {
-
+            && !request.getRequestURI().startsWith("/setup")
+            && !request.getRequestURI().startsWith("/js/")
+            && !request.getRequestURI().startsWith("/css/")) {
             response.sendRedirect("/setup");
+            return;
+        } 
+        if (!applicationState.isSetupRequired() 
+                && request.getRequestURI().equals("/setup")) {
+
+            response.sendRedirect("/library");
             return;
         }
 
-        filterChain.doFilter(request, response);
-    }
+         filterChain.doFilter(request, response);
 }
+
+   
+    }
