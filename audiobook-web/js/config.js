@@ -7,6 +7,9 @@ export function getApiBase() {
     }
     return customUrl;
   }
+  if (window.location.origin && window.location.origin !== "null" && !window.location.origin.startsWith("file://")) {
+    return window.location.origin;
+  }
   const host = window.location.hostname || "localhost";
   return `http://${host}:8080`;
 }
