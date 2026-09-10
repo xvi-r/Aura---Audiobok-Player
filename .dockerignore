@@ -1,0 +1,10 @@
+target/
+.git/
+.github/
+.vscode/
+audiobook-web - Copy/
+audiobook-web - Latest backup/
+logs/
+app-data/
+*.log
+.mvn/wrapper/maven-wrapper.jar
