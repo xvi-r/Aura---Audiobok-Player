@@ -21,6 +21,14 @@ export async function fetchWithTimeout(url, options = {}, timeoutMs = 2500) {
       signal: controller.signal
     });
     clearTimeout(timer);
+
+    if (response.status === 428 && !url.includes("/setup")) {
+      console.log("[Aura Fetch] Server setup required (HTTP 428). Redirecting to /setup...");
+      if (window.location.pathname !== "/setup") {
+        window.location.pathname = "/setup";
+      }
+    }
+
     return response;
   } catch (err) {
     clearTimeout(timer);

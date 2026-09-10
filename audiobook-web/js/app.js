@@ -10,6 +10,8 @@ import { renderEqualizer } from "./equalizer.js";
 import { renderSettings } from "./settings.js";
 import { renderUpload } from "./upload.js";
 import { renderAuthView, renderWhosListeningView, updateAuthSidebarUI } from "./auth.js";
+import { renderSetupView } from "./setup.js";
+import { getApiBase, fetchWithTimeout } from "./config.js";
 
 const applyThemeAndAccent = () => {
   const baseTheme = localStorage.getItem("aura_base_theme") || "base-midnight";
@@ -104,59 +106,59 @@ const initApp = () => {
   });
 
   // 2. Setup Routes
-  router.addRoute("#library", async () => {
+  router.addRoute("/library", async () => {
     cleanupPreviousView();
     await renderLibrary();
-    updateActiveSidebar("#library");
+    updateActiveSidebar("/library");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#recently-played", async () => {
+  router.addRoute("/recently-played", async () => {
     cleanupPreviousView();
     await renderLibrary("", true);
-    updateActiveSidebar("#recently-played");
+    updateActiveSidebar("/recently-played");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#favorites", async () => {
+  router.addRoute("/favorites", async () => {
     cleanupPreviousView();
     await renderFavorites();
-    updateActiveSidebar("#favorites");
+    updateActiveSidebar("/favorites");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#collections", async (activeCollectionName = null) => {
+  router.addRoute("/collections", async (activeCollectionName = null) => {
     cleanupPreviousView();
     await renderCollections(activeCollectionName);
-    updateActiveSidebar("#collections");
+    updateActiveSidebar("/collections");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#equalizer", () => {
+  router.addRoute("/equalizer", () => {
     cleanupPreviousView();
     renderEqualizer();
-    updateActiveSidebar("#equalizer");
+    updateActiveSidebar("/equalizer");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#settings", () => {
+  router.addRoute("/settings", () => {
     cleanupPreviousView();
     renderSettings();
-    updateActiveSidebar("#settings");
+    updateActiveSidebar("/settings");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#upload", () => {
+  router.addRoute("/upload", () => {
     cleanupPreviousView();
     renderUpload();
-    updateActiveSidebar("#upload");
+    updateActiveSidebar("/upload");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#book", async (bookId) => {
+  router.addRoute("/book", async (bookId) => {
     cleanupPreviousView();
     try {
-      console.log("[Aura Router] Navigating to #book with bookId:", bookId);
+      console.log("[Aura Router] Navigating to /book with bookId:", bookId);
       await renderDetails(bookId);
     } catch (err) {
       console.error("[Aura Router] Error rendering book details:", bookId, err);
@@ -166,7 +168,7 @@ const initApp = () => {
           <div style="text-align: center; padding: 48px; color: #ef4444;">
             <h2>Error Loading Book Details</h2>
             <p style="margin-top: 8px; color: var(--text-muted); font-size: 0.85rem;">${err.message || err}</p>
-            <button class="back-btn" onclick="location.hash='#library'" style="margin-top: 16px;">Return to Library</button>
+            <button class="back-btn" onclick="router.navigate('/library')" style="margin-top: 16px;">Return to Library</button>
           </div>
         `;
       }
@@ -175,10 +177,10 @@ const initApp = () => {
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#ebook", async (ebookId) => {
+  router.addRoute("/ebook", async (ebookId) => {
     cleanupPreviousView();
     try {
-      console.log("[Aura Router] Navigating to #ebook with ebookId:", ebookId);
+      console.log("[Aura Router] Navigating to /ebook with ebookId:", ebookId);
       await renderEbookDetails(ebookId);
     } catch (err) {
       console.error("[Aura Router] Error rendering ebook details:", ebookId, err);
@@ -188,7 +190,7 @@ const initApp = () => {
           <div style="text-align: center; padding: 48px; color: #ef4444;">
             <h2>Error Loading E-Book Details</h2>
             <p style="margin-top: 8px; color: var(--text-muted); font-size: 0.85rem;">${err.message || err}</p>
-            <button class="back-btn" onclick="location.hash='#library'" style="margin-top: 16px;">Return to Library</button>
+            <button class="back-btn" onclick="router.navigate('/library')" style="margin-top: 16px;">Return to Library</button>
           </div>
         `;
       }
@@ -197,30 +199,37 @@ const initApp = () => {
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#now-playing", () => {
+  router.addRoute("/now-playing", () => {
     cleanupPreviousView();
     renderNowPlaying();
-    updateActiveSidebar("#now-playing");
+    updateActiveSidebar("/now-playing");
     syncBottomPlayerBar(true); // Hide bottom player when viewing Now Playing
   });
 
-  router.addRoute("#login", () => {
+  router.addRoute("/login", () => {
     cleanupPreviousView();
     renderAuthView("login");
-    updateActiveSidebar("#login");
+    updateActiveSidebar("/login");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#register", () => {
+  router.addRoute("/register", () => {
     cleanupPreviousView();
     renderAuthView("register");
-    updateActiveSidebar("#register");
+    updateActiveSidebar("/register");
     syncBottomPlayerBar(false);
   });
 
-  router.addRoute("#whos-listening", () => {
+  router.addRoute("/whos-listening", () => {
     cleanupPreviousView();
     renderWhosListeningView();
+    updateActiveSidebar("");
+    syncBottomPlayerBar(false);
+  });
+
+  router.addRoute("/setup", () => {
+    cleanupPreviousView();
+    renderSetupView();
     updateActiveSidebar("");
     syncBottomPlayerBar(false);
   });
@@ -228,10 +237,25 @@ const initApp = () => {
   // Update Auth State in Sidebar
   updateAuthSidebarUI();
 
-  // 3. Initialize Router
+  // 3. Check Server Setup Status
+  (async () => {
+    try {
+      const API_BASE = getApiBase();
+      const res = await fetchWithTimeout(`${API_BASE}/setup/status`, {}, 2500);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.setupCompleted === false && window.location.pathname !== "/setup") {
+          console.log("[Aura App] Server setup required. Redirecting to /setup...");
+          router.navigate("/setup");
+        }
+      }
+    } catch (e) {}
+  })();
+
+  // 4. Initialize Router
   router.init();
 
-  // 4. Hook up sidebar navigation click triggers
+  // 5. Hook up sidebar navigation click triggers
   setupSidebarNavigation();
 };
 
@@ -243,22 +267,25 @@ if (document.readyState === "loading") {
 
 function cleanupPreviousView() {
   const container = document.getElementById("main-content");
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.style.display = "";
   if (container) {
     container.style.overflowY = "";
-    container.style.paddingBottom = "";
+    container.style.padding = "";
+    container.style.maxWidth = "";
+    container.style.margin = "";
   }
-  // If the previous view had custom window listeners registered, clean them up to prevent leaks
   if (container && container.cleanupDetailsListeners) {
     container.cleanupDetailsListeners();
     delete container.cleanupDetailsListeners;
   }
 }
 
-function updateActiveSidebar(hash) {
+function updateActiveSidebar(path) {
   const navItems = document.querySelectorAll(".nav-item");
   navItems.forEach((item) => {
     const link = item.querySelector("a");
-    if (link && link.getAttribute("href") === hash) {
+    if (link && link.getAttribute("href") === path) {
       item.classList.add("active");
     } else {
       item.classList.remove("active");
@@ -267,14 +294,14 @@ function updateActiveSidebar(hash) {
 }
 
 function setupSidebarNavigation() {
-  const navLinks = document.querySelectorAll(".nav-item a");
-  navLinks.forEach((link) => {
-    link.addEventListener("click", (e) => {
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (link) {
       const href = link.getAttribute("href");
-      if (href && href.startsWith("#")) {
+      if (href && href.startsWith("/") && !href.startsWith("/api/")) {
         e.preventDefault();
         router.navigate(href);
       }
-    });
+    }
   });
 }
