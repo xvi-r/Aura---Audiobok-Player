@@ -12,6 +12,12 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
+    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**")
+                .addResourceLocations("file:audiobook-web/", "classpath:/static/");
+    }
+
+    @Override
     public void extendMessageConverters(
             List<HttpMessageConverter<?>> converters) {
 

@@ -29,9 +29,29 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/css/**",
+                                "/js/**",
+                                "/assets/**",
+                                "/favicon.svg",
+                                "/setup",
+                                "/library",
+                                "/login",
+                                "/register",
+                                "/whos-listening",
+                                "/recently-played",
+                                "/favorites",
+                                "/collections",
+                                "/collections/**",
+                                "/equalizer",
+                                "/settings",
+                                "/upload",
+                                "/now-playing",
+                                "/book/**",
+                                "/ebook/**",
                                 "/api/users/register",
                                 "/api/users/login",
-                                "/setup",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**")
                         .permitAll()
