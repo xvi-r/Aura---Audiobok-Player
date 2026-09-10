@@ -1,8 +1,13 @@
 package com.example.audiobooks.service;
 
+import java.beans.Transient;
+import java.lang.foreign.Linker.Option;
+
+import org.apache.el.stream.Optional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +15,11 @@ import com.example.audiobooks.dto.user.UserLoginRequest;
 import com.example.audiobooks.dto.user.UserRegisterRequest;
 import com.example.audiobooks.dto.user.UserRegisterResponse;
 import com.example.audiobooks.entity.User;
+import com.example.audiobooks.entity.UserRole;
 import com.example.audiobooks.exception.UserNameAlreadyExistsException;
 import com.example.audiobooks.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -58,6 +65,15 @@ public class UserService {
         Authentication auth = authenticationManager.authenticate(token);
         log.info("Successfully authenticated user: username={}", request.getUsername());
         return auth;
+    }
+
+    @Transactional 
+    public void upgradeUserToAdmin(String username) {
+        User user = userRepository.findByUsername(username)
+        .orElseThrow(() ->
+                new UsernameNotFoundException("User was not found"));
+        user.setRole(UserRole.ADMIN);
+        log.info("Successfully upgraded user: username={} to admin", user.getUsername());
     }
 
 }
