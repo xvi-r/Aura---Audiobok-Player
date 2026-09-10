@@ -77,6 +77,10 @@ public class AudiobookController {
 
         Resource cover = service.getCover(id);
 
+        if (cover == null || !cover.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(cover);

@@ -185,7 +185,7 @@ public class AudiobookService {
         int exitCode = process.waitFor();
 
         if (exitCode != 0) {
-            throw new IOException("FFmpeg failed to extract cover");
+            log.warn("FFmpeg could not extract cover image from {} (file may lack embedded artwork)", audiobookFile.getName());
         }
 
         return coverFile;
