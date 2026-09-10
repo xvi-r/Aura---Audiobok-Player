@@ -51,6 +51,12 @@ public class AudiobookControllerTest {
     @MockitoBean
     private SecurityContextRepository securityContextRepository;
 
+    @MockitoBean
+    private com.example.audiobooks.application.ApplicationState applicationState;
+
+    @MockitoBean
+    private com.example.audiobooks.repository.ApplicationStateRepository applicationStateRepository;
+
     @Test
     @DisplayName("GET /api/audiobooks/continue-listening - Should return 200 OK and JSON list when authenticated")
     void continueListening_shouldReturn200AndJsonList() throws Exception {
