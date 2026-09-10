@@ -17,7 +17,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class UserService {
 
     public UserRegisterResponse registerUser(UserRegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            // Custom exception here so we can specfically deal with it later
+            log.warn("Registration rejected - username '{}' already exists", request.getUsername());
             throw new UserNameAlreadyExistsException("Username Already Exists");
         }
 
@@ -40,17 +43,21 @@ public class UserService {
         user.setPassword(passwordHash);
 
         userRepository.save(user);
+        log.info("Registered new user account: id={}, username={}", user.getId(), user.getUsername());
 
         return new UserRegisterResponse(user.getId(), user.getUsername());
     }
 
     public Authentication login(UserLoginRequest request) {
+        log.debug("Authenticating user credentials for username: {}", request.getUsername());
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
                 request.getPassword());
 
-        return authenticationManager.authenticate(token);
+        Authentication auth = authenticationManager.authenticate(token);
+        log.info("Successfully authenticated user: username={}", request.getUsername());
+        return auth;
     }
 
 }

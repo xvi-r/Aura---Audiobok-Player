@@ -9,7 +9,7 @@ import { renderFavorites } from "./favorites.js";
 import { renderEqualizer } from "./equalizer.js";
 import { renderSettings } from "./settings.js";
 import { renderUpload } from "./upload.js";
-import { renderAuthView, updateAuthSidebarUI } from "./auth.js";
+import { renderAuthView, renderWhosListeningView, updateAuthSidebarUI } from "./auth.js";
 
 const applyThemeAndAccent = () => {
   const baseTheme = localStorage.getItem("aura_base_theme") || "base-midnight";
@@ -215,6 +215,13 @@ const initApp = () => {
     cleanupPreviousView();
     renderAuthView("register");
     updateActiveSidebar("#register");
+    syncBottomPlayerBar(false);
+  });
+
+  router.addRoute("#whos-listening", () => {
+    cleanupPreviousView();
+    renderWhosListeningView();
+    updateActiveSidebar("");
     syncBottomPlayerBar(false);
   });
 

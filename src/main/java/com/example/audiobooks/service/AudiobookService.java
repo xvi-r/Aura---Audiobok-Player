@@ -50,7 +50,10 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AudiobookService {
 
@@ -106,7 +109,7 @@ public class AudiobookService {
             }
         }
 
-        System.out.println("File Type = " + suffix);
+        log.info("Importing audiobook file type: {}", suffix);
 
         File tempFile = File.createTempFile("upload-", suffix);
 
@@ -126,7 +129,7 @@ public class AudiobookService {
         Path audiobookPath = audiobookDir.resolve("audiobook" + suffix);
         Path coverPath = audiobookDir.resolve("cover.jpg");
 
-        System.out.println("Setting path to: " + audiobookPath.toString());
+        log.debug("Setting audiobook file path: {}", audiobookPath);
         audiobook.setFilePath(audiobookPath.toString());
         audiobook.setCoverPath(coverPath.toString());
 
@@ -137,8 +140,7 @@ public class AudiobookService {
 
         extractCover(audiobookPath.toFile(), coverPath);
 
-        System.out.println("Temporary file:");
-        System.out.println(tempFile.getAbsolutePath());
+        log.debug("Cleaned up temp upload file: {}", tempFile.getAbsolutePath());
 
         repository.save(audiobook);
 
@@ -149,14 +151,14 @@ public class AudiobookService {
         userAudiobook.setPosition(0.0);
 
         userAudiobookRepository.save(userAudiobook);
+        log.info("Audiobook imported successfully: id={}, title={}", audiobook.getId(), audiobook.getTitle());
     }
 
     private File extractCover(File audiobookFile, Path coverPath) throws IOException, InterruptedException {
 
         File coverFile = File.createTempFile("cover-", ".jpg");
 
-        System.out.println("Extracting cover from: " + audiobookFile.getAbsolutePath());
-        System.out.println("Cover destination: " + coverPath);
+        log.info("Extracting cover via FFmpeg from {} to {}", audiobookFile.getAbsolutePath(), coverPath);
 
         ProcessBuilder builder = new ProcessBuilder(
                 "ffmpeg",
@@ -176,7 +178,7 @@ public class AudiobookService {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                System.out.println("FFmpeg: " + line);
+                log.debug("FFmpeg output: {}", line);
             }
         }
 

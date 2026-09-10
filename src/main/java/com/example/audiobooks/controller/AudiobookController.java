@@ -32,7 +32,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 //@CrossOrigin(origins = "*")
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AudiobookController {
@@ -61,10 +64,10 @@ public class AudiobookController {
     public String upload(@RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
 
-        service.importAudiobook(file, userDetails.getId());
+        log.info("Received audiobook upload request: filename={}, size={} bytes, userId={}",
+                file.getOriginalFilename(), file.getSize(), userDetails.getId());
 
-        System.out.println("Received file: " + file.getOriginalFilename());
-        System.out.println("Size: " + file.getSize());
+        service.importAudiobook(file, userDetails.getId());
 
         return "Upload successful!";
     }

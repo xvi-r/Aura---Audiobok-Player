@@ -21,7 +21,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+
 //@CrossOrigin(origins = "*")
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<UserRegisterResponse> registerUser(@RequestBody UserRegisterRequest userRegisterRequest) {
+        log.info("Processing account registration request for username: {}", userRegisterRequest.getUsername());
         UserRegisterResponse userRegisterResponse = userService.registerUser(userRegisterRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userRegisterResponse);
@@ -44,9 +48,7 @@ public class UserController {
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
-        // httpRequest represents the incoming request.
-        // The HTTP session infrastructure uses it to resolve the associated http
-        // session (via use of the Jsession id in the cookie)
+        log.info("Processing login request for username: {}", request.getUsername());
 
         Authentication authentication = userService.login(request);
 
@@ -56,17 +58,12 @@ public class UserController {
 
         SecurityContextHolder.setContext(context);
 
-        // Save the SecurityContext in the HttpSession associated with this request. The
-        // HTTP session infrastructure handles
-        // the Jsession id -> httpsession lookup
-
-        // Later when an authenticated request comes in Spring Security can load this
-        // securityContext from the session and make it available through the
-        // SecurityContextHolder.
         securityContextRepository.saveContext(
                 context,
                 httpRequest,
                 httpResponse);
+
+        log.info("User logged in successfully: username={}", request.getUsername());
 
         return ResponseEntity.ok().build();
     }

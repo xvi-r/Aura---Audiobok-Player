@@ -14,6 +14,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class M4Bparser {
 
@@ -50,7 +53,7 @@ public class M4Bparser {
 
         FFprobeResponse response = mapper.readValue(json.toString(), FFprobeResponse.class);
 
-        System.out.println(response.getChapters().size());
+        log.debug("M4B parse chapter count: {}", response.getChapters() != null ? response.getChapters().size() : 0);
         
         Audiobook audiobook = new Audiobook();
 
@@ -89,13 +92,12 @@ public class M4Bparser {
         audiobook.setDescription(description);
                     
 
-        System.out.println("Duration: " + audiobook.getDuration());
-        System.out.println("Title: " + audiobook.getTitle());
-        System.out.println("Author: " + audiobook.getAuthor());
+        log.info("Parsed M4B metadata: title='{}', author='{}', duration={}s, chapters={}", 
+                audiobook.getTitle(), audiobook.getAuthor(), audiobook.getDuration(), audiobook.getChapters().size());
 
 
         for (Chapter chapter : audiobook.getChapters()) {
-            System.out.println("Chapter: " + chapter.getTitle() + " Start time: " + chapter.getStartTimeMs());
+            log.debug("Chapter: {} | Start: {}ms", chapter.getTitle(), chapter.getStartTimeMs());
         }
         return audiobook;
     }

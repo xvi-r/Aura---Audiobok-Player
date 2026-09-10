@@ -37,14 +37,25 @@ export function updateAuthSidebarUI() {
   if (currentUser) {
     const initial = currentUser.charAt(0).toUpperCase();
     accountList.innerHTML = `
-      <div class="sidebar-user-card">
+      <li class="nav-item">
+        <a href="#whos-listening" id="sidebar-whos-listening-link">
+          <i data-lucide="users"></i>
+          <span>Switch Profile</span>
+        </a>
+      </li>
+      <div class="sidebar-user-card" style="margin-top: 8px;">
         <div class="sidebar-user-info">
           <div class="sidebar-user-avatar">${initial}</div>
           <span class="sidebar-user-name">${currentUser}</span>
         </div>
-        <button class="sidebar-logout-btn" id="sidebar-logout-action" title="Sign Out">
-          <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
-        </button>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <a href="#whos-listening" class="sidebar-logout-btn" title="Switch Profile / Who's Listening">
+            <i data-lucide="users" style="width: 15px; height: 15px;"></i>
+          </a>
+          <button class="sidebar-logout-btn" id="sidebar-logout-action" title="Sign Out">
+            <i data-lucide="log-out" style="width: 15px; height: 15px;"></i>
+          </button>
+        </div>
       </div>
     `;
     const logoutBtn = document.getElementById("sidebar-logout-action");
@@ -56,6 +67,12 @@ export function updateAuthSidebarUI() {
     }
   } else {
     accountList.innerHTML = `
+      <li class="nav-item">
+        <a href="#whos-listening" id="sidebar-whos-listening-link">
+          <i data-lucide="users"></i>
+          <span>Who's Listening?</span>
+        </a>
+      </li>
       <li class="nav-item">
         <a href="#login" id="sidebar-login-link">
           <i data-lucide="log-in"></i>
@@ -310,3 +327,79 @@ function showAuthAlert(container, message, type = "error") {
   `;
   if (window.lucide) window.lucide.createIcons();
 }
+
+export function renderWhosListeningView() {
+  const container = document.getElementById("main-content");
+  if (!container) return;
+
+  container.className = "fade-in";
+  container.style.overflowY = "auto";
+  container.style.paddingBottom = "80px";
+
+  const defaultProfiles = [
+    { name: "Luis", color: "var(--accent-primary, #f27d11)" },
+    { name: "Alex", color: "#3b82f6" },
+    { name: "Jordan", color: "#10b981" },
+    { name: "Sam", color: "#8b5cf6" }
+  ];
+
+  const profilesHtml = defaultProfiles.map(p => `
+    <div class="profile-card" data-username="${p.name}">
+      <div class="profile-avatar" style="background: ${p.color};">
+        ${p.name.charAt(0).toUpperCase()}
+      </div>
+      <span class="profile-name">${p.name}</span>
+    </div>
+  `).join("");
+
+  container.innerHTML = `
+    <div class="whos-listening-wrapper">
+      <div class="auth-card whos-listening-card">
+        <div class="auth-card-header">
+          <div class="auth-badge-icon">
+            <i data-lucide="users"></i>
+          </div>
+          <h2 class="auth-card-title">Who's Listening?</h2>
+          <p class="auth-card-subtitle">Select a profile to continue your audiobook journey.</p>
+        </div>
+
+        <div class="profile-grid">
+          ${profilesHtml}
+          <div class="profile-card profile-card-add" id="whos-listening-add-btn">
+            <div class="profile-avatar profile-avatar-add">
+              <i data-lucide="plus" style="width: 24px; height: 24px;"></i>
+            </div>
+            <span class="profile-name" style="color: var(--text-muted);">Add Profile</span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <a href="#login" class="profile-manage-btn">Log in with another account</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+
+  const profileCards = container.querySelectorAll(".profile-card[data-username]");
+  profileCards.forEach(card => {
+    card.addEventListener("click", () => {
+      const username = card.getAttribute("data-username");
+      if (username) {
+        setAuthenticatedUser(username);
+        router.navigate("#library");
+      }
+    });
+  });
+
+  const addBtn = document.getElementById("whos-listening-add-btn");
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      router.navigate("#register");
+    });
+  }
+}
+

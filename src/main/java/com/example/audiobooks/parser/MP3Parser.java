@@ -11,7 +11,10 @@ import com.example.audiobooks.entity.Audiobook;
 import com.example.audiobooks.parser.dto.FFprobeResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class MP3Parser {
     
     public Audiobook mp3Parse(File file) throws Exception {
@@ -68,6 +71,9 @@ public class MP3Parser {
         }
 
         audiobook.setDescription(description);
+
+        log.info("Parsed MP3 metadata: title='{}', author='{}', duration={}s",
+                audiobook.getTitle(), audiobook.getAuthor(), audiobook.getDuration());
 
         return audiobook;
     }
