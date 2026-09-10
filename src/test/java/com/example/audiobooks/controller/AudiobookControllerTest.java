@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import org.springframework.mock.web.MockMultipartFile;
 
 
 import java.time.Instant;
@@ -83,8 +85,8 @@ public class AudiobookControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /api/audiobooks/{id}/asin - Should return 200 OK and invoke audiobookService.enrichAudiobookByAsin")
-    void enrichByAsin_shouldReturn200OK_andPassFetchChaptersToService() throws Exception {
+    @DisplayName("PUT /api/audiobooks/{id}/asin - Should return 403 Forbidden when user role is USER")
+    void enrichByAsin_whenUserHasRoleUser_shouldReturn403Forbidden() throws Exception {
         User mockUserEntity = new User();
         mockUserEntity.setId(1L);
         mockUserEntity.setUsername("alice");
@@ -101,7 +103,32 @@ public class AudiobookControllerTest {
 
         mockMvc.perform(put("/api/audiobooks/1/asin")
                 .with(user(customUserDetails))
-                .with(csrf()) // Injects CSRF token for HTTP PUT
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonPayload))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PUT /api/audiobooks/{id}/asin - Should return 200 OK when user role is ADMIN")
+    void enrichByAsin_whenUserHasRoleAdmin_shouldReturn200OK() throws Exception {
+        User mockUserEntity = new User();
+        mockUserEntity.setId(2L);
+        mockUserEntity.setUsername("admin");
+        mockUserEntity.setRole(UserRole.ADMIN);
+        CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
+
+        String jsonPayload = """
+            {
+              "asin": "B002V5B280",
+              "country": "us",
+              "fetchChapters": true
+            }
+            """;
+
+        mockMvc.perform(put("/api/audiobooks/1/asin")
+                .with(user(customUserDetails))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonPayload))
                 .andExpect(status().isOk());
@@ -138,5 +165,43 @@ public class AudiobookControllerTest {
                 .with(csrf()))
                 .andExpect(status().isNoContent()); // Asserts HTTP 204
         verify(audiobookService).deleteAudiobook(1L);
+    }
+
+    @Test
+    @DisplayName("POST /api/upload - Should return 403 Forbidden when user role is USER")
+    void upload_whenUserHasRoleUser_shouldReturn403Forbidden() throws Exception {
+        User mockUserEntity = new User();
+        mockUserEntity.setId(1L);
+        mockUserEntity.setUsername("alice");
+        mockUserEntity.setRole(UserRole.USER);
+        CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
+
+        MockMultipartFile dummyFile = new MockMultipartFile("file", "test.mp3", "audio/mpeg", "test content".getBytes());
+
+        mockMvc.perform(multipart("/api/upload")
+                .file(dummyFile)
+                .with(user(customUserDetails))
+                .with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("POST /api/upload - Should return 200 OK when user role is ADMIN")
+    void upload_whenUserHasRoleAdmin_shouldReturn200OK() throws Exception {
+        User mockUserEntity = new User();
+        mockUserEntity.setId(2L);
+        mockUserEntity.setUsername("admin");
+        mockUserEntity.setRole(UserRole.ADMIN);
+        CustomUserDetails customUserDetails = new CustomUserDetails(mockUserEntity);
+
+        MockMultipartFile dummyFile = new MockMultipartFile("file", "test.mp3", "audio/mpeg", "test content".getBytes());
+
+        mockMvc.perform(multipart("/api/upload")
+                .file(dummyFile)
+                .with(user(customUserDetails))
+                .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(audiobookService).importAudiobook(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq(2L));
     }
 }

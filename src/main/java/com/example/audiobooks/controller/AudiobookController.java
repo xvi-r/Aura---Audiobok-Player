@@ -56,6 +56,7 @@ public class AudiobookController {
     }
 
     // TODO: change to /api/upload/audiobook
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/api/upload", consumes = "multipart/form-data")
     public String upload(@RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
@@ -105,6 +106,7 @@ public class AudiobookController {
         return userAudiobookService.getMostRecentAudiobook(userDetails.getId());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/api/audiobooks/{id}/asin")
     public void enrichByAsin(
             @PathVariable Long id,
