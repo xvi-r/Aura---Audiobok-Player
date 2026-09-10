@@ -3,6 +3,17 @@ import { player } from "./player.js";
 import { getApiBase } from "./config.js";
 import { openEpubReader } from "./epub_reader.js";
 
+// Listen for track changes to auto-update view only if book changes or placeholder active
+window.addEventListener("audiobook-track-change", () => {
+  const isOnNowPlaying = window.location.pathname === "/now-playing" || window.location.hash === "#now-playing";
+  if (!isOnNowPlaying) return;
+  const npCover = document.getElementById("np-cover");
+  const npTitle = document.getElementById("np-title");
+  if (!npCover || !npTitle || (player.currentBook && npTitle.textContent !== player.currentBook.title)) {
+    renderNowPlaying();
+  }
+});
+
 export const renderNowPlaying = () => {
   const mainContent = document.getElementById("main-content");
   if (!mainContent) return;
@@ -372,7 +383,9 @@ const setupNPEventListeners = (book, coverUrl) => {
         e.stopPropagation();
         const idx = parseInt(item.dataset.idx, 10);
         player.playChapter(idx);
-        renderNowPlaying();
+        chaptersPopup.querySelectorAll(".popup-item").forEach(p => p.classList.remove("active"));
+        item.classList.add("active");
+        if (chaptersBtn) chaptersBtn.classList.remove("active");
       });
     });
   }

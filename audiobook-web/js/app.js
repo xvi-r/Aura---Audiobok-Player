@@ -97,11 +97,11 @@ const initApp = () => {
 
   // Automatically show the player bar when playback begins/switches tracks
   window.addEventListener("audiobook-track-change", () => {
-    const isNowPlaying = window.location.hash === "#now-playing";
+    const isNowPlaying = window.location.pathname === "/now-playing" || window.location.hash === "#now-playing";
     syncBottomPlayerBar(isNowPlaying);
   });
   window.addEventListener("audiobook-play-state-change", () => {
-    const isNowPlaying = window.location.hash === "#now-playing";
+    const isNowPlaying = window.location.pathname === "/now-playing" || window.location.hash === "#now-playing";
     syncBottomPlayerBar(isNowPlaying);
   });
 
@@ -257,7 +257,22 @@ const initApp = () => {
 
   // 5. Hook up sidebar navigation click triggers
   setupSidebarNavigation();
+
+  // 6. Smooth Curtain Reveal (dismiss splash screen overlay once initial render completes)
+  dismissSplashScreen();
 };
+
+function dismissSplashScreen() {
+  const splash = document.getElementById("app-splash-screen");
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add("splash-hidden");
+      setTimeout(() => {
+        try { splash.remove(); } catch (e) {}
+      }, 500);
+    }, 150);
+  }
+}
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);

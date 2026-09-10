@@ -442,7 +442,10 @@ class PlayerController {
 
   getCurrentChapterIndex() {
     if (!this.currentBook || !Array.isArray(this.currentBook.chapters) || this.currentBook.chapters.length === 0) return 0;
-    const secs = this.audio.currentTime;
+    const secs = (this.audio && !isNaN(this.audio.currentTime) && this.audio.currentTime > 0)
+      ? this.audio.currentTime
+      : (this.pendingTargetTime !== undefined && this.pendingTargetTime !== null ? this.pendingTargetTime : (this.currentBook.position || this.currentBook.progressSeconds || 0));
+
     for (let i = this.currentBook.chapters.length - 1; i >= 0; i--) {
       const start = this.getChapterStartTime(this.currentBook.chapters[i]);
       if (secs >= start) {
@@ -510,6 +513,26 @@ class PlayerController {
       targetTime = this.getChapterStartTime(book.chapters[chapterIndex]);
     }
 
+    this.pendingTargetTime = targetTime;
+
+    // Fetch chapters if not already present in the book object (e.g. from /recent or shelf DTOs)
+    if (book.id && (!book.chapters || !Array.isArray(book.chapters) || book.chapters.length === 0)) {
+      fetchWithTimeout(`${getApiBase()}/api/audiobooks/${book.id}`, {}, 3000)
+        .then(res => res.ok ? res.json() : null)
+        .then(fullBook => {
+          if (fullBook && fullBook.chapters && Array.isArray(fullBook.chapters)) {
+            book.chapters = fullBook.chapters;
+            if (this.currentBook && String(this.currentBook.id) === String(book.id)) {
+              this.currentBook.chapters = fullBook.chapters;
+              this.currentChapterIndex = this.getCurrentChapterIndex();
+              this.updateUI();
+              this.notifyTrackChange();
+            }
+          }
+        })
+        .catch(err => console.warn("[Aura] Could not fetch chapters for book:", err));
+    }
+
     // Fetch freshest progress from backend if not already embedded
     if (book.id && elapsedBookSeconds === null && book.progressResponse === undefined && book.position === undefined) {
       this.fetchProgress(book.id).then(prog => {
@@ -519,6 +542,9 @@ class PlayerController {
             book.position = freshPos;
             book.progressSeconds = freshPos;
             book.completed = prog.completed;
+            this.pendingTargetTime = freshPos;
+            this.currentChapterIndex = this.getCurrentChapterIndex();
+            this.updateUI();
             if (this.currentBook && String(this.currentBook.id) === String(book.id)) {
               if (Math.abs((this.audio.currentTime || 0) - freshPos) > 2) {
                 try {
@@ -532,7 +558,7 @@ class PlayerController {
       });
     }
 
-    this.currentChapterIndex = chapterIndex;
+    this.currentChapterIndex = this.getCurrentChapterIndex();
 
     // Determine audio source URL
     let audioSrc = "";

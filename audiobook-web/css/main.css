@@ -218,11 +218,9 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -264,4 +262,55 @@ body {
 .spinner-icon {
   animation: spin 1s linear infinite;
   display: inline-block;
+}
+
+/* App Initialization Splash Screen Curtain */
+#app-splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background-color: var(--bg-primary, #0d1118);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+#app-splash-screen.splash-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.splash-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-main, #ffffff);
+  letter-spacing: 2px;
+}
+
+.splash-logo i,
+.splash-logo svg {
+  width: 36px;
+  height: 36px;
+  color: var(--accent-primary, #f27d11);
+}
+
+.splash-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent-primary, #f27d11);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }

@@ -35,6 +35,17 @@
 </head>
 <body>
 
+  <!-- Initial App Splash Screen Overlay (Hides once initial data is ready) -->
+  <div id="app-splash-screen">
+    <div class="splash-content">
+      <div class="splash-logo">
+        <i data-lucide="headphones"></i>
+        <span>AURA</span>
+      </div>
+      <div class="splash-spinner"></div>
+    </div>
+  </div>
+
   <!-- App Main Frame -->
   <div id="app-container">
     
@@ -129,12 +140,6 @@
     <!-- Main Content Pane -->
     <main id="main-content" role="main">
       <!-- Dynamic views render here -->
-      <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-        <div style="text-align: center; color: var(--text-muted);">
-          <i data-lucide="loader" class="spinner-icon" style="width: 32px; height: 32px; margin-bottom: 12px;"></i>
-          <p>Loading Aura Library...</p>
-        </div>
-      </div>
     </main>
 
   </div>

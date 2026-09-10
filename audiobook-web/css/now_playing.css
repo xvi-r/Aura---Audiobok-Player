@@ -46,6 +46,7 @@
 .np-artwork-wrapper {
   width: 320px;
   height: 320px;
+  background: var(--bg-surface);
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65);
