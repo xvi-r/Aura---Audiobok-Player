@@ -204,6 +204,7 @@ public class AudiobookService {
         }
 
         long fileLength = Files.size(path);
+        log.info("Streaming audio file: audiobookId={}, filename={}, range={}", id, path.getFileName(), range != null ? range : "FULL_FILE");
 
         // No Range header: return the entire file
         if (range == null) {
@@ -299,6 +300,9 @@ public class AudiobookService {
 
     @Transactional
     public void enrichAudiobookByAsin(Long audiobookId, String asin, String country, Boolean fetchChapters) {
+        log.info("Enriching audiobook metadata via Audnex API: audiobookId={}, asin={}, country={}, fetchChapters={}",
+                audiobookId, asin, country, fetchChapters);
+
         Audiobook audiobook = repository.findById(audiobookId)
                 .orElseThrow(() -> new RuntimeException("Audiobook not found"));
 

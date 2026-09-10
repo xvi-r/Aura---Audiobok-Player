@@ -24,16 +24,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
-
+@Slf4j
 @Service
 public class UserAudiobookService {
         private final UserAudiobookRepository userAudiobookRepository;
         private final UserAudiobookMapper userAudiobookMapper;
 
     public List<UserAudiobookResponse> getUserAudiobooks(Long id) {
+        log.debug("Fetching user audiobooks shelf for userId={}", id);
         List<UserAudiobook> userAudiobookData = userAudiobookRepository.findAllByUserIdOrderByAudiobookIdAsc(id);
 
         return userAudiobookData.stream()
@@ -53,6 +56,9 @@ public class UserAudiobookService {
 
         userAudiobookRepository.save(userAudiobook);
 
+        log.info("Updated playback progress: userId={}, audiobookId={}, position={}s, completed={}",
+                userId, audiobookId, audiobookProgressRequest.getPosition(), audiobookProgressRequest.isCompleted());
+
         return new UserAudiobookProgressResponse(userAudiobook.getPosition(), userAudiobook.isCompleted(),
                 Instant.now());
     }
@@ -68,6 +74,9 @@ public class UserAudiobookService {
         response.setCompleted(userAudiobook.isCompleted());
         response.setUpdatedAt(userAudiobook.getLastPlayedAt());
 
+        log.info("User resumed/started audiobook: userId={}, audiobookId={}, position={}s, completed={}",
+                userId, audiobookId, response.getPosition(), response.isCompleted());
+
         return response;
     }
 
@@ -75,10 +84,12 @@ public class UserAudiobookService {
         UserAudiobook userAudiobook = userAudiobookRepository.findFirstByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(userId)
                 .orElseThrow(() -> new NoPlayedAudiobookException("User has not played any audiobooks"));
 
+        log.debug("Fetched most recent audiobook for userId={}: audiobookId={}", userId, userAudiobook.getAudiobook().getId());
         return userAudiobookMapper.toResponse(userAudiobook);
     }
     
     public List<UserAudiobookResponse> continueListening(Long userId) {
+        log.debug("Fetching continue-listening shelf for userId={}", userId);
         List<UserAudiobook> userAudiobooks = userAudiobookRepository.findTop8ByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(userId);
 
         return userAudiobooks.stream()
