@@ -72,8 +72,19 @@ class PlayerController {
 
     const API_BASE = getApiBase();
 
-    // 1. Attempt fetching the most recent audiobook from GET /api/audiobooks/recent
+    // 0. Synchronous instant local storage load (eliminates 0:00 flash on load)
+    const localState = this.getLocalStorageProgress();
     let initialBook = null;
+    let isLocalNewer = false;
+
+    if (localState && localState.book) {
+      initialBook = localState.book;
+      const startPos = localState.positionSeconds !== undefined ? localState.positionSeconds : null;
+      this.loadBook(initialBook, localState.chapterIndex || 0, startPos, false);
+      this.updateUI();
+    }
+
+    // 1. Fetch recent audiobook from GET /api/audiobooks/recent and reconcile timestamps
     try {
       const recentResponse = await fetchWithTimeout(`${API_BASE}/api/audiobooks/recent`, {}, 3000);
       if (recentResponse.ok && recentResponse.status !== 204) {
@@ -82,7 +93,25 @@ class PlayerController {
           const bookId = data.id ?? data.audioBookId ?? data.audiobookId ?? data.bookId;
           if (bookId) {
             data.id = bookId;
-            initialBook = data;
+            
+            // Reconcile timestamps between server and local storage
+            const serverTimeStr = data.lastPlayedAt || data.updatedAt || (data.progressResponse && (data.progressResponse.lastPlayedAt || data.progressResponse.updatedAt));
+            const serverTimestamp = serverTimeStr ? new Date(serverTimeStr).getTime() : 0;
+            const localTimestamp = (localState && localState.updatedAt) ? new Date(localState.updatedAt).getTime() : 0;
+
+            if (serverTimestamp > localTimestamp) {
+              console.log("[Aura Sync] Server timestamp is newer. Syncing position from server.");
+              initialBook = data;
+              isLocalNewer = false;
+            } else if (localState && localState.book && String(localState.book.id) === String(bookId)) {
+              console.log("[Aura Sync] Local storage timestamp is newer/equal. Retaining local position.");
+              initialBook = localState.book;
+              initialBook.position = localState.positionSeconds;
+              initialBook.progressSeconds = localState.positionSeconds;
+              isLocalNewer = true;
+            } else {
+              initialBook = data;
+            }
           }
         }
       }
@@ -90,7 +119,7 @@ class PlayerController {
       console.warn("[Aura] Could not fetch recent audiobook from backend:", err);
     }
 
-    // 2. Fallback: if no recent book, fetch all books and pick the first one
+    // 2. Fallback: if no recent book or cache, fetch all books and pick the first one
     if (!initialBook) {
       let allBooks = [];
       try {
@@ -108,8 +137,7 @@ class PlayerController {
         ? parseFloat(initialBook.progressResponse.position)
         : (initialBook.position !== undefined && initialBook.position !== null ? parseFloat(initialBook.position) : null);
 
-      // Restore at saved position, don't auto-play
-      this.loadBook(initialBook, 0, startPos, false);
+      this.loadBook(initialBook, localState && isLocalNewer ? (localState.chapterIndex || 0) : 0, startPos, false);
     }
 
     this.updateUI();
@@ -853,6 +881,9 @@ class PlayerController {
     this.currentBook.position = positionInSeconds;
     this.currentBook.completed = isCompleted;
 
+    // Synchronously update local storage every time position changes (0ms delay on reload)
+    this.saveToLocalStorage(positionInSeconds, isCompleted);
+
     const now = Date.now();
     
     // Periodic sync: only sync every 12 seconds WHILE PLAYING
@@ -877,6 +908,44 @@ class PlayerController {
       }, 4000);
     } catch (err) {
       console.warn("[Aura] Backend progress sync notice:", err);
+    }
+  }
+
+  saveToLocalStorage(positionInSeconds, isCompleted = false) {
+    if (!this.currentBook || !this.currentBook.id) return;
+    try {
+      const nowIso = new Date().toISOString();
+      const stateData = {
+        bookId: this.currentBook.id,
+        chapterIndex: this.getCurrentChapterIndex(),
+        positionSeconds: positionInSeconds,
+        completed: isCompleted,
+        updatedAt: nowIso,
+        book: this.currentBook
+      };
+      localStorage.setItem("aura_last_played_state", JSON.stringify(stateData));
+      localStorage.setItem(`aura_progress_${this.currentBook.id}`, JSON.stringify({
+        bookId: this.currentBook.id,
+        chapterIndex: stateData.chapterIndex,
+        positionSeconds: positionInSeconds,
+        completed: isCompleted,
+        updatedAt: nowIso
+      }));
+    } catch (e) {
+      console.warn("[Aura] Could not save progress to localStorage:", e);
+    }
+  }
+
+  getLocalStorageProgress(bookId = null) {
+    try {
+      if (bookId) {
+        const raw = localStorage.getItem(`aura_progress_${bookId}`);
+        return raw ? JSON.parse(raw) : null;
+      }
+      const raw = localStorage.getItem("aura_last_played_state");
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
     }
   }
 
