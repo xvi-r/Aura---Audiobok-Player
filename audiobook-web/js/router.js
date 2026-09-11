@@ -64,6 +64,15 @@ class Router {
       return;
     }
 
+    // Check for discover sub-route: /discover/asin-here
+    if (path.startsWith("/discover/")) {
+      const asin = path.replace("/discover/", "");
+      if (this.routes["/discover"]) {
+        this.routes["/discover"](asin);
+      }
+      return;
+    }
+
     // Default routes
     if (this.routes[path]) {
       this.routes[path]();

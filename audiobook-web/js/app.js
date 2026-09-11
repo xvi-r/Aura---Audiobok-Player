@@ -9,6 +9,7 @@ import { renderFavorites } from "./favorites.js";
 import { renderEqualizer } from "./equalizer.js";
 import { renderSettings } from "./settings.js";
 import { renderUpload } from "./upload.js";
+import { renderDiscover } from "./discover.js";
 import { renderAuthView, renderWhosListeningView, updateAuthSidebarUI } from "./auth.js";
 import { renderSetupView } from "./setup.js";
 import { getApiBase, fetchWithTimeout } from "./config.js";
@@ -152,6 +153,13 @@ const initApp = () => {
     cleanupPreviousView();
     renderUpload();
     updateActiveSidebar("/upload");
+    syncBottomPlayerBar(false);
+  });
+
+  router.addRoute("/discover", (asin = "") => {
+    cleanupPreviousView();
+    renderDiscover(asin);
+    updateActiveSidebar("/discover");
     syncBottomPlayerBar(false);
   });
 
