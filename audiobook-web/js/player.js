@@ -94,17 +94,42 @@ class PlayerController {
           if (bookId) {
             data.id = bookId;
             
-            // Reconcile timestamps between server and local storage
-            const serverTimeStr = data.lastPlayedAt || data.updatedAt || (data.progressResponse && (data.progressResponse.lastPlayedAt || data.progressResponse.updatedAt));
-            const serverTimestamp = serverTimeStr ? new Date(serverTimeStr).getTime() : 0;
+            // Helper to parse timestamps from any server DTO property variant
+            const parseTimestamp = (obj) => {
+              if (!obj) return 0;
+              const str = obj.getLastPlayedAt || obj.lastPlayedAt || obj.updatedAt || obj.last_played_at || obj.updated_at;
+              if (!str) return 0;
+              const t = new Date(str).getTime();
+              return isNaN(t) ? 0 : t;
+            };
+
+            const serverTimestamp = parseTimestamp(data) || parseTimestamp(data.progressResponse);
             const localTimestamp = (localState && localState.updatedAt) ? new Date(localState.updatedAt).getTime() : 0;
 
+            console.log(`[Aura Sync] Timestamp comparison: Server=${serverTimestamp} (${new Date(serverTimestamp).toISOString()}), Local=${localTimestamp} (${new Date(localTimestamp).toISOString()})`);
+
             if (serverTimestamp > localTimestamp) {
-              console.log("[Aura Sync] Server timestamp is newer. Syncing position from server.");
+              console.log("[Aura Sync] Server timestamp is NEWER. Updating player to server position.");
               initialBook = data;
               isLocalNewer = false;
+
+              // Immediately update current audio position if already loaded from cache
+              const serverPos = (data.position !== undefined && data.position !== null)
+                ? parseFloat(data.position)
+                : (data.progressResponse && data.progressResponse.position !== undefined ? parseFloat(data.progressResponse.position) : 0);
+
+              if (!isNaN(serverPos) && serverPos >= 0) {
+                this.pendingTargetTime = serverPos;
+                if (this.currentBook) {
+                  this.currentBook.position = serverPos;
+                  this.currentBook.progressSeconds = serverPos;
+                }
+                if (this.audio) {
+                  try { this.audio.currentTime = serverPos; } catch (e) {}
+                }
+              }
             } else if (localState && localState.book && String(localState.book.id) === String(bookId)) {
-              console.log("[Aura Sync] Local storage timestamp is newer/equal. Retaining local position.");
+              console.log("[Aura Sync] Local storage timestamp is NEWER or equal. Retaining local position.");
               initialBook = localState.book;
               initialBook.position = localState.positionSeconds;
               initialBook.progressSeconds = localState.positionSeconds;
