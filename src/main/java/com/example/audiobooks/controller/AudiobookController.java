@@ -2,12 +2,14 @@ package com.example.audiobooks.controller;
 
 import com.example.audiobooks.dto.asin.AsinRequest;
 import com.example.audiobooks.dto.audiobook.AudiobookResponse;
+import com.example.audiobooks.dto.audnex.AudnexAsinSearchResponse;
 import com.example.audiobooks.dto.userAudiobook.AudiobookProgressRequest;
 import com.example.audiobooks.dto.userAudiobook.UserAudiobookProgressResponse;
 import com.example.audiobooks.dto.userAudiobook.UserAudiobookResponse;
 import com.example.audiobooks.entity.Audiobook;
 import com.example.audiobooks.security.CustomUserDetails;
 import com.example.audiobooks.service.AudiobookService;
+import com.example.audiobooks.service.DiscoverService;
 import com.example.audiobooks.service.UserAudiobookService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class AudiobookController {
 
     private final AudiobookService service;
     private final UserAudiobookService userAudiobookService;
+    private final DiscoverService discoverService;
 
     @GetMapping("/api/audiobook/getUserAudiobooks")
     public List<UserAudiobookResponse> getUserAudiobooks(@AuthenticationPrincipal CustomUserDetails user) {
@@ -132,5 +135,10 @@ public class AudiobookController {
     public ResponseEntity<Void> deleteAudiobook(@PathVariable Long id) {
         service.deleteAudiobook(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/api/audiobooks/asin/{asin}") 
+    public ResponseEntity<AudnexAsinSearchResponse> searchByAsin(@PathVariable String asin) {
+        return ResponseEntity.ok(discoverService.searchByAsin(asin));
     }
 }
