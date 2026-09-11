@@ -45,7 +45,7 @@
 .discover-search-form {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .discover-input-wrapper {
@@ -66,7 +66,8 @@
 
 .discover-input {
   width: 100%;
-  padding: 12px 14px 12px 42px;
+  height: 46px;
+  padding: 0 16px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -75,6 +76,7 @@
   font-size: 0.95rem;
   outline: none;
   transition: var(--transition-quick);
+  box-sizing: border-box;
 }
 
 .discover-input:focus {
@@ -82,7 +84,8 @@
 }
 
 .discover-search-btn {
-  padding: 12px 24px;
+  height: 46px;
+  padding: 0 24px;
   background: var(--accent-primary);
   color: #fff;
   border: none;
@@ -91,10 +94,12 @@
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   transition: var(--transition-quick);
+  box-sizing: border-box;
 }
 
 .discover-search-btn:hover {

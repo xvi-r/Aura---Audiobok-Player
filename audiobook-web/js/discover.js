@@ -17,7 +17,6 @@ export function renderDiscover(initialAsin = "") {
       <div class="discover-search-card">
         <form class="discover-search-form" id="discover-form">
           <div class="discover-input-wrapper">
-            <i data-lucide="search"></i>
             <input 
               type="text" 
               id="discover-asin-input" 
@@ -32,12 +31,6 @@ export function renderDiscover(initialAsin = "") {
             <span>Search</span>
           </button>
         </form>
-        <div class="discover-suggestions">
-          <span>Try example:</span>
-          <button class="discover-chip" data-asin="B017V568SY">B017V568SY (Harry Potter 1)</button>
-          <button class="discover-chip" data-asin="B002V8OU26">B002V8OU26 (The Hobbit)</button>
-          <button class="discover-chip" data-asin="B0797DY74V">B0797DY74V (Atomic Habits)</button>
-        </div>
       </div>
 
       <div id="discover-results-area">
@@ -55,7 +48,6 @@ export function renderDiscover(initialAsin = "") {
 
   const form = document.getElementById("discover-form");
   const input = document.getElementById("discover-asin-input");
-  const suggestions = document.querySelectorAll(".discover-chip");
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -63,14 +55,6 @@ export function renderDiscover(initialAsin = "") {
     if (asin) {
       performAsinSearch(asin);
     }
-  });
-
-  suggestions.forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const asin = chip.getAttribute("data-asin");
-      input.value = asin;
-      performAsinSearch(asin);
-    });
   });
 
   if (initialAsin) {
