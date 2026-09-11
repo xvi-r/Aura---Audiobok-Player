@@ -1306,10 +1306,14 @@ class PlayerController {
   updatePlaybackProgressUI() {
     if (!this.currentBook) return;
 
-    const bookDuration = this.audio.duration || this.currentBook.duration;
+    const bookDuration = (this.audio && !isNaN(this.audio.duration) && this.audio.duration > 0)
+      ? this.audio.duration
+      : (this.currentBook.duration || this.currentBook.runtimeSeconds || 1);
     if (!bookDuration) return;
 
-    const absoluteTime = this.audio.currentTime;
+    const absoluteTime = (this.audio && !isNaN(this.audio.currentTime) && this.audio.currentTime > 0)
+      ? this.audio.currentTime
+      : (this.pendingTargetTime !== undefined && this.pendingTargetTime !== null ? this.pendingTargetTime : (this.currentBook.position || this.currentBook.progressSeconds || 0));
 
     let curVal = absoluteTime;
     let curMax = bookDuration;
