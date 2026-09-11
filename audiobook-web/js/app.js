@@ -97,13 +97,17 @@ const initApp = () => {
   };
 
   // Automatically show the player bar when playback begins/switches tracks
+  const shouldHidePlayerBar = () => {
+    const p = window.location.pathname;
+    const h = window.location.hash;
+    return p === "/now-playing" || h === "#now-playing" || p === "/discover" || h === "#discover" || p.startsWith("/discover/");
+  };
+
   window.addEventListener("audiobook-track-change", () => {
-    const isNowPlaying = window.location.pathname === "/now-playing" || window.location.hash === "#now-playing";
-    syncBottomPlayerBar(isNowPlaying);
+    syncBottomPlayerBar(shouldHidePlayerBar());
   });
   window.addEventListener("audiobook-play-state-change", () => {
-    const isNowPlaying = window.location.pathname === "/now-playing" || window.location.hash === "#now-playing";
-    syncBottomPlayerBar(isNowPlaying);
+    syncBottomPlayerBar(shouldHidePlayerBar());
   });
 
   // 2. Setup Routes
@@ -160,7 +164,7 @@ const initApp = () => {
     cleanupPreviousView();
     renderDiscover(asin);
     updateActiveSidebar("/discover");
-    syncBottomPlayerBar(false);
+    syncBottomPlayerBar(true);
   });
 
   router.addRoute("/book", async (bookId) => {
