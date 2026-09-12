@@ -41,7 +41,7 @@ public class UserAudiobookRepositoryTest {
         createTestUserAudiobook(user1, unplayedBook, null);
 
         List<UserAudiobook> results = repository
-                .findTop8ByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(user1.getId());
+                .findTop8ContinueListeningForUser(user1.getId());
         
         assertThat(results).hasSize(8);
 

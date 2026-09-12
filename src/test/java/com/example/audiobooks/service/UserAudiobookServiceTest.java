@@ -42,7 +42,7 @@ public class UserAudiobookServiceTest {
             10L, "Dune", "Frank Herbert", 1200.0, List.of("Sci-Fi"), 500.0, false, Instant.now()
         );
 
-        when(userAudiobookRepository.findTop8ByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(userId))
+        when(userAudiobookRepository.findTop8ContinueListeningForUser(userId))
             .thenReturn(List.of(mockUserAudiobook));
 
         when(userAudiobookMapper.toResponse(mockUserAudiobook))
@@ -54,7 +54,7 @@ public class UserAudiobookServiceTest {
         assertThat(results).hasSize(1);
         assertThat(results.get(0).title()).isEqualTo("Dune");
 
-        verify(userAudiobookRepository).findTop8ByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(userId);
+        verify(userAudiobookRepository).findTop8ContinueListeningForUser(userId);
         verify(userAudiobookMapper).toResponse(mockUserAudiobook);
     }
 
@@ -63,13 +63,13 @@ public class UserAudiobookServiceTest {
     void continueListening_shouldReturnEmptyListWhenNoHistory() {
         
         Long userId = 1L;
-        when(userAudiobookRepository.findTop8ByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(userId))
+        when(userAudiobookRepository.findTop8ContinueListeningForUser(userId))
             .thenReturn(Collections.emptyList());
         
         List<UserAudiobookResponse> results = userAudiobookService.continueListening(userId);
         
         assertThat(results).isEmpty();
-        verify(userAudiobookRepository).findTop8ByUserIdAndLastPlayedAtIsNotNullOrderByLastPlayedAtDesc(userId);
+        verify(userAudiobookRepository).findTop8ContinueListeningForUser(userId);
 
     }
 }
