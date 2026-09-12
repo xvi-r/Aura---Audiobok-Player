@@ -45,4 +45,6 @@ public class UserAudiobook {
 
     private Instant lastPlayedAt;
 
+    private boolean isHidden;
+
 }
