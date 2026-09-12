@@ -2,6 +2,7 @@ package com.example.audiobooks.controller;
 
 import com.example.audiobooks.dto.asin.AsinRequest;
 import com.example.audiobooks.dto.audiobook.AudiobookResponse;
+import com.example.audiobooks.dto.audiobook.CatalogAudiobookResponse;
 import com.example.audiobooks.dto.userAudiobook.AudiobookProgressRequest;
 import com.example.audiobooks.dto.userAudiobook.UserAudiobookProgressResponse;
 import com.example.audiobooks.dto.userAudiobook.UserAudiobookResponse;
@@ -44,7 +45,7 @@ public class AudiobookController {
     private final UserAudiobookService userAudiobookService;
 
     @GetMapping("/api/audiobook/getUserAudiobooks")
-    public List<UserAudiobookResponse> getUserAudiobooks(@AuthenticationPrincipal CustomUserDetails user) {
+    public List<CatalogAudiobookResponse> getUserAudiobooks(@AuthenticationPrincipal CustomUserDetails user) {
         return userAudiobookService.getUserAudiobooks(user.getId());
     }
 
