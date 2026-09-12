@@ -907,7 +907,7 @@ class PlayerController {
     this.currentBook.completed = isCompleted;
 
     // Synchronously update local storage every time position changes (0ms delay on reload)
-    this.saveToLocalStorage(positionInSeconds, isCompleted);
+    this.saveToLocalStorage(positionInSeconds, isCompleted, force);
 
     const now = Date.now();
     
@@ -936,8 +936,11 @@ class PlayerController {
     }
   }
 
-  saveToLocalStorage(positionInSeconds, isCompleted = false) {
+  saveToLocalStorage(positionInSeconds, isCompleted = false, force = false) {
     if (!this.currentBook || !this.currentBook.id) return;
+    // Guard: Do not overwrite localStorage timestamp on initial page load / buffer timeupdate events when paused
+    if (!this.isPlaying && !force) return;
+
     try {
       const nowIso = new Date().toISOString();
       const stateData = {
