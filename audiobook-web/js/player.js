@@ -938,6 +938,9 @@ class PlayerController {
 
   saveToLocalStorage(positionInSeconds, isCompleted = false) {
     if (!this.currentBook || !this.currentBook.id) return;
+    // Guard: Do not overwrite localStorage timestamp on initial page load / buffer timeupdate events when paused
+    if (!this.isPlaying) return;
+
     try {
       const nowIso = new Date().toISOString();
       const stateData = {
