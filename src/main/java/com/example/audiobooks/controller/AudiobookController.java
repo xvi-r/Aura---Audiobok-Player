@@ -55,8 +55,10 @@ public class AudiobookController {
     // }
 
     @GetMapping("/api/audiobooks/{id}")
-    public Audiobook getAudiobook(@PathVariable Long id) {
-        return service.getAudiobookById(id);
+    public Audiobook getAudiobook(
+            @PathVariable Long id, 
+            @AuthenticationPrincipal CustomUserDetails user) {
+        return service.getAudiobookByIdForUser(id, user.getId());
     }
 
     // TODO: change to /api/upload/audiobook
