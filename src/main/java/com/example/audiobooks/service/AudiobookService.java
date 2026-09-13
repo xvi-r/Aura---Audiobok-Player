@@ -83,6 +83,11 @@ public class AudiobookService {
                 .orElseThrow(() -> new AudiobookNotFoundException(id));
     }
 
+    public Audiobook getAudiobookByIdForUser(Long id, Long userId) {
+        return repository.findAudiobookForUser(id, userId)
+                .orElseThrow(() -> new AudiobookNotFoundException(id));
+    }
+
     public Audiobook saveAudiobook(Audiobook audiobook) {
         return repository.save(audiobook);
     }
